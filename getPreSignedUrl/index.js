@@ -1,8 +1,8 @@
 const AWS = require("aws-sdk")
 
 const s3 = new AWS.S3({
-  accessKeyId: "AKIATJSZI5E45Z7ZVKF6",
-  secretAccessKey: "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",
+  accessKeyId: process.env.accessKeyId,
+  secretAccessKey: process.env.secretAccessKey,
 })
 
 exports.handler = async (event, context) => {
@@ -27,7 +27,7 @@ exports.handler = async (event, context) => {
       Key: decodeURIComponent(fileName),
       ContentType: decodeURIComponent(fileType),
       ACL: "public-read-write",
-      Expires: 300,
+      Expires: 6000,
       // ServerSideEncryption: 'AES256' // <-- uncomment to add server-side encryption
     }
 
