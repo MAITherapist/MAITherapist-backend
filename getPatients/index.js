@@ -50,13 +50,26 @@ exports.handler = async (event, context) => {
 
     try {
       const result = await dynamoDb.scan(params).promise()
+      const sessionsResult = await dynamoDb.scan({
+        TableName: "Sessions",
+        FilterExpression: "therapistId = :therapistId",
+        ExpressionAttributeValues: {
+          ":therapistId": therapistId,
+        },
+      }).promise()
+
+      const resultItems = result.Items.map((item) => {
+        const sessions = sessionsResult.Items.filter((session) => session.patientId === item.id)
+        return {...item, sessions}
+      })
+      
       return {
         statusCode: 200,
         headers: {
           "Access-Control-Allow-Origin": "*",
           "Access-Control-Allow-Credentials": true,
         },
-        body: JSON.stringify(result.Items),
+        body: JSON.stringify(resultItems),
       }
     } catch (error) {
       return {

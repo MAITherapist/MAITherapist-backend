@@ -37,6 +37,13 @@ exports.handler = async (event, context) => {
 
     try {
       const result = await dynamoDb.get(params).promise()
+      const sessionsResult = await dynamoDb.scan({
+        TableName: "Sessions",
+        FilterExpression: "patientId = :patientId",
+        ExpressionAttributeValues: {
+          ":patientId": id,
+        },
+      }).promise()
       if (!result.Item) {
         return {
           statusCode: 404,
@@ -57,7 +64,7 @@ exports.handler = async (event, context) => {
       }
       return {
         statusCode: 200,
-        body: JSON.stringify(result.Item),
+        body: JSON.stringify({...result.Item, sessions: sessionsResult.Items}),
         headers: {
           "Access-Control-Allow-Origin": "*",
           "Access-Control-Allow-Credentials": true,
